@@ -43,6 +43,7 @@ const create = async (input) => {
         documentNumber === STATUS.HIGH_PRIVILEDGE_DOCUMENT
           ? STATUS.APPROVED
           : STATUS.PENDING_REQUEST,
+      deleted: false,
     };
 
     const response = await purchaseRepository.create(params);
@@ -72,7 +73,7 @@ const edit = async (input) => {
 
   const purchase = await purchaseRepository.get(checkParams);
 
-  if (purchase) {
+  if (purchase && purchase.deleted === false) {
     if (purchase.status === STATUS.APPROVED)
       return responseTransformer.onError('Status já aprovado');
     const [_, [updatedPurchase]] = await purchaseRepository.update(

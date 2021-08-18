@@ -143,6 +143,7 @@ describe('Testing purchase business-operation', () => {
       value: faker.datatype.number(),
       purchaseDate: faker.datatype.datetime(),
       documentNumber: faker.datatype.string(),
+      deleted: false,
       editedValues,
     };
 
@@ -193,6 +194,31 @@ describe('Testing purchase business-operation', () => {
 
         expect(status).to.equal(400);
         expect(data.message).to.equal('Status já aprovado');
+      });
+    });
+
+    describe('When purchase was deleted', () => {
+      const mockedWithDeleted = {
+        ...mockValues,
+        status: STATUS.APPROVED,
+        deleted: true,
+      };
+
+      before(() => {
+        getPurchaseStub = sinon
+          .stub(purchaseRepository, 'get')
+          .returns(mockedWithDeleted);
+      });
+
+      after(() => {
+        purchaseRepository.get.restore();
+      });
+
+      it('Should return 400 and purchase doesnt exist error', async () => {
+        const { status, data } = await purchaseBO.edit(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Compra não foi encontrada');
       });
     });
 
