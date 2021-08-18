@@ -53,10 +53,12 @@ const create = async (input) => {
 };
 
 /* Function edit
-1- Check if user exists on database
-2- If not, return error
-3- If so, create a token for this documentNumber
-3.1 - Return response with token
+1- Check if all datas exists
+2- Check if purchase exists on database
+4- Check if purchase is deleted
+5- Check if purchase is Approved
+6- If not, edit purchase
+7- If so, return error
 */
 const edit = async (input) => {
   const { code, value, purchaseDate, documentNumber, editedValues } = input;
@@ -86,33 +88,42 @@ const edit = async (input) => {
   return responseTransformer.onError('Compra não foi encontrada');
 };
 
-/* Function edit
+/* Function remove
 1- Check if user exists on database
 2- If not, return error
 3- If so, create a token for this documentNumber
 3.1 - Return response with token
 */
 const remove = async (input) => {
-  const params = {
-    documentNumber: input.documentNumber,
-    password: md5(input.password),
+  const { code, purchaseDate, documentNumber } = input;
+
+  if (!code || !purchaseDate || !documentNumber)
+    return responseTransformer.onError('Informe todos os dados');
+
+  const checkParams = {
+    code,
+    purchaseDate,
+    documentNumber,
   };
 
-  const user = await purchaseRepository.get(params);
-  if (!user) {
-    return responseTransformer.onError('CPF ou Senha incorreta');
-  }
+  const purchase = await purchaseRepository.get(checkParams);
 
-  const token = createJWTToken(user.uid);
-  if (token) {
-    const response = {
-      token,
-      user,
+  if (purchase && purchase.deleted === false) {
+    if (purchase.status === STATUS.APPROVED)
+      return responseTransformer.onError('Status já aprovado');
+
+    const updateParams = {
+      deleted: true,
     };
-    return responseTransformer.onSuccess(response);
+
+    const [_, [updatedPurchase]] = await purchaseRepository.update(
+      updateParams,
+      checkParams
+    );
+    return responseTransformer.onSuccess(updatedPurchase);
   }
 
-  return responseTransformer.onError('CPF nao encontrado');
+  return responseTransformer.onError('Compra não foi encontrada');
 };
 
 /* Function edit

@@ -8,6 +8,7 @@ const userRepository = require('../../src/core/repository/user');
 const STATUS = require('../../src/enums/purchase-status');
 
 describe('Testing purchase business-operation', () => {
+  // CREATING NEW PURCHASE
   describe('Creating new purchase', () => {
     let createPurchaseStub;
     let getUserStub;
@@ -126,6 +127,7 @@ describe('Testing purchase business-operation', () => {
     });
   });
 
+  // EDITING PURCHASE
   describe('Editing purchase', () => {
     let getPurchaseStub;
     let updatePurchaseStub;
@@ -200,7 +202,6 @@ describe('Testing purchase business-operation', () => {
     describe('When purchase was deleted', () => {
       const mockedWithDeleted = {
         ...mockValues,
-        status: STATUS.APPROVED,
         deleted: true,
       };
 
@@ -245,6 +246,120 @@ describe('Testing purchase business-operation', () => {
         expect(data.value).to.equal(editedValues.value);
         expect(data.purchaseDate).to.equal(editedValues.purchaseDate);
         expect(data.documentNumber).to.equal(editedValues.documentNumber);
+      });
+    });
+  });
+
+  // REMOVING PURCHASE
+  describe('Removing purchase', () => {
+    let getPurchaseStub;
+    let updatePurchaseStub;
+
+    const mockValues = {
+      code: faker.datatype.string(),
+      purchaseDate: faker.datatype.datetime(),
+      documentNumber: faker.datatype.string(),
+      deleted: false,
+    };
+
+    describe('When values are missing', () => {
+      it('Should return 400 with invalid input error', async () => {
+        const { status, data } = await purchaseBO.remove({});
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Informe todos os dados');
+      });
+    });
+
+    describe('When purchase doesnt exist', () => {
+      before(() => {
+        getPurchaseStub = sinon.stub(purchaseRepository, 'get').returns();
+      });
+
+      after(() => {
+        purchaseRepository.get.restore();
+      });
+
+      it('Should return 400 and purchase doesnt exist error', async () => {
+        const { status, data } = await purchaseBO.remove(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Compra não foi encontrada');
+      });
+    });
+
+    describe('When purchase was deleted', () => {
+      const mockedWithDeleted = {
+        ...mockValues,
+        deleted: true,
+      };
+
+      before(() => {
+        getPurchaseStub = sinon
+          .stub(purchaseRepository, 'get')
+          .returns(mockedWithDeleted);
+      });
+
+      after(() => {
+        purchaseRepository.get.restore();
+      });
+
+      it('Should return 400 and purchase doesnt exist error', async () => {
+        const { status, data } = await purchaseBO.remove(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Compra não foi encontrada');
+      });
+    });
+
+    describe('When purchase has status Approved', () => {
+      const mockedWithApproved = {
+        ...mockValues,
+        status: STATUS.APPROVED,
+      };
+
+      before(() => {
+        getPurchaseStub = sinon
+          .stub(purchaseRepository, 'get')
+          .returns(mockedWithApproved);
+      });
+
+      after(() => {
+        purchaseRepository.get.restore();
+      });
+
+      it('Should return 400 and already approved error', async () => {
+        const { status, data } = await purchaseBO.remove(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Status já aprovado');
+      });
+    });
+
+    describe('When purchase is removed successfully', () => {
+      const mockDeletedData = {
+        ...mockValues,
+        deleted: true,
+      };
+      before(() => {
+        getPurchaseStub = sinon
+          .stub(purchaseRepository, 'get')
+          .returns(mockValues);
+        updatePurchaseStub = sinon
+          .stub(purchaseRepository, 'update')
+          .returns([1, [mockDeletedData]]);
+      });
+
+      after(() => {
+        purchaseRepository.get.restore();
+        purchaseRepository.update.restore();
+      });
+
+      it('Should return 200 and edit purchase', async () => {
+        const { status, data } = await purchaseBO.remove(mockValues);
+
+        expect(status).to.equal(200);
+        expect(data.deleted).to.equal(mockDeletedData.deleted);
       });
     });
   });
