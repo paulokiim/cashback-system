@@ -134,7 +134,6 @@ describe('Testing purchase business-operation', () => {
 
     const editedValues = {
       code: faker.datatype.string(),
-      value: faker.datatype.number(),
       purchaseDate: faker.datatype.datetime(),
       documentNumber: faker.datatype.string(),
     };
@@ -361,6 +360,32 @@ describe('Testing purchase business-operation', () => {
         expect(status).to.equal(200);
         expect(data.deleted).to.equal(mockDeletedData.deleted);
       });
+    });
+  });
+
+  describe('Get all purchases', () => {
+    let getAllPurchaseStub;
+
+    const mockValues = {
+      documentNumber: faker.datatype.string(),
+    };
+
+    const returnData = [];
+
+    before(() => {
+      getAllPurchaseStub = sinon
+        .stub(purchaseRepository, 'getAll')
+        .returns(returnData);
+    });
+
+    after(() => {
+      purchaseRepository.getAll.restore();
+    });
+
+    it('Should return all datas from a documentNumber', async () => {
+      const { status, data } = await purchaseBO.getAll(mockValues);
+
+      expect(status).to.equal(200);
     });
   });
 });

@@ -52,6 +52,9 @@ module.exports = (sequelize, DataTypes) => {
       targetKey: 'document_number',
       as: 'user',
     });
+    Purchase.belongsTo(models.Cashback, {
+      foreignKey: 'uid',
+    });
   };
 
   return Purchase;

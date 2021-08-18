@@ -14,8 +14,13 @@ const update = (params, where) => {
   return Purchase.update(params, { returning: true, where });
 };
 
+const getAll = (params) => {
+  return Purchase.findAll({ where: params });
+};
+
 module.exports = {
   create,
   get,
   update,
+  getAll,
 };

@@ -61,14 +61,13 @@ const create = async (input) => {
 7- If so, return error
 */
 const edit = async (input) => {
-  const { code, value, purchaseDate, documentNumber, editedValues } = input;
+  const { code, purchaseDate, documentNumber, editedValues } = input;
 
-  if (!code || !value || !purchaseDate || !documentNumber)
+  if (!code || !purchaseDate || !documentNumber)
     return responseTransformer.onError('Informe todos os dados');
 
   const checkParams = {
     code,
-    value,
     purchaseDate,
     documentNumber,
   };
@@ -89,70 +88,40 @@ const edit = async (input) => {
 };
 
 /* Function remove
-1- Check if user exists on database
-2- If not, return error
-3- If so, create a token for this documentNumber
-3.1 - Return response with token
+1- Check if all datas exists
+2- Check if purchase exists on database
+4- Check if purchase is deleted
+5- Check if purchase is Approved
+6- If not, remove purchase
+7- If so, return error
 */
-const remove = async (input) => {
-  const { code, purchaseDate, documentNumber } = input;
-
-  if (!code || !purchaseDate || !documentNumber)
-    return responseTransformer.onError('Informe todos os dados');
-
-  const checkParams = {
-    code,
-    purchaseDate,
-    documentNumber,
+const remove = (input) => {
+  const editedValues = {
+    deleted: true,
   };
-
-  const purchase = await purchaseRepository.get(checkParams);
-
-  if (purchase && purchase.deleted === false) {
-    if (purchase.status === STATUS.APPROVED)
-      return responseTransformer.onError('Status já aprovado');
-
-    const updateParams = {
-      deleted: true,
-    };
-
-    const [_, [updatedPurchase]] = await purchaseRepository.update(
-      updateParams,
-      checkParams
-    );
-    return responseTransformer.onSuccess(updatedPurchase);
-  }
-
-  return responseTransformer.onError('Compra não foi encontrada');
+  return edit({ ...input, editedValues });
 };
 
-/* Function edit
-1- Check if user exists on database
-2- If not, return error
-3- If so, create a token for this documentNumber
-3.1 - Return response with token
+/* Function getAll
+1- Get all using documentNumber and deleted to filter
+2- Return datas
 */
 const getAll = async (input) => {
-  const params = {
-    documentNumber: input.documentNumber,
-    password: md5(input.password),
+  const { documentNumber } = input;
+  const whereParams = {
+    documentNumber,
+    deleted: false,
   };
 
-  const user = await purchaseRepository.get(params);
-  if (!user) {
-    return responseTransformer.onError('CPF ou Senha incorreta');
-  }
+  const response = await purchaseRepository.getAll(whereParams);
 
-  const token = createJWTToken(user.uid);
-  if (token) {
-    const response = {
-      token,
-      user,
-    };
-    return responseTransformer.onSuccess(response);
-  }
+  const parsedResponse = response.map((data) => ({
+    code: data.code,
+    value: data.value,
+    purchaseData: data.purchaseDate,
+  }));
 
-  return responseTransformer.onError('CPF nao encontrado');
+  return responseTransformer.onSuccess(parsedResponse);
 };
 
 module.exports = {

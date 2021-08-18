@@ -18,6 +18,7 @@ module.exports = {
         type: Sequelize.FLOAT,
       },
       purchase_uid: {
+        allowNull: false,
         type: Sequelize.UUID,
         references: {
           model: {
@@ -25,7 +26,6 @@ module.exports = {
           },
           key: 'uid',
         },
-        allowNull: false,
       },
       created_at: {
         allowNull: false,
