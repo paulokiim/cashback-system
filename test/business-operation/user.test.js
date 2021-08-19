@@ -66,10 +66,11 @@ describe('Testing user business-operation', () => {
     };
 
     describe('Successfull login', () => {
-      const jwtToken = createJWTToken(mockValues.documentNumber);
+      let jwtToken;
 
       before(() => {
         getUserStub = sinon.stub(userRepository, 'get').returns(mockValues);
+        jwtToken = createJWTToken(mockValues.documentNumber);
       });
 
       after(() => {

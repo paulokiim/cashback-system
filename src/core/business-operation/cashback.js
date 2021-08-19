@@ -74,7 +74,7 @@ const get = async (purchaseUid) => {
     const response = await cashbackRepository.get(whereParams);
     return response;
   } catch (error) {
-    return 'Error trying to get many cashbacks';
+    return 'Error trying to get cashback';
   }
 };
 
