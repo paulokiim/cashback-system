@@ -24,15 +24,16 @@ const create = async (input) => {
     value,
     purchaseDate,
     documentNumber,
+    deleted: false,
   };
 
   const user = await userRepository.get({ documentNumber });
 
   if (!user) return responseTransformer.onError('Usuário não encontrado');
 
-  const purchaseExists = await purchaseRepository.get(checkParams);
+  const purchase = await purchaseRepository.get(checkParams);
 
-  if (!purchaseExists) {
+  if (!purchase) {
     const purchaseUid = uuid();
     const params = {
       uid: purchaseUid,
@@ -67,7 +68,7 @@ const create = async (input) => {
 6- If not, edit purchase
 7- If so, return error
 */
-const edit = async (input) => {
+const edit = async (input, isRemove) => {
   const { code, purchaseDate, documentNumber, editedValues } = input;
 
   if (!code || !purchaseDate || !documentNumber)
@@ -77,6 +78,7 @@ const edit = async (input) => {
     code,
     purchaseDate,
     documentNumber,
+    deleted: false,
   };
 
   const purchase = await purchaseRepository.get(checkParams);
@@ -84,11 +86,34 @@ const edit = async (input) => {
   if (purchase && purchase.deleted === false) {
     if (purchase.status === STATUS.APPROVED)
       return responseTransformer.onError('Status já aprovado');
+
     const [_, [updatedPurchase]] = await purchaseRepository.update(
       editedValues,
       checkParams
     );
-    return responseTransformer.onSuccess(updatedPurchase);
+
+    if (isRemove) return responseTransformer.onSuccess(updatedPurchase);
+    if (editedValues.value) {
+      const updatedCashback = await cashbackBO.edit(
+        purchase.uid,
+        editedValues.value
+      );
+
+      if (typeof updatedCashback === 'string')
+        return responseTransformer.onError('Erro ao tentar editar cashback');
+
+      return responseTransformer.onSuccess({
+        purchase: updatedPurchase,
+        cashback: updatedCashback,
+      });
+    }
+
+    const cashback = await cashbackBO.get(purchase.uid);
+
+    return responseTransformer.onSuccess({
+      purchase: updatedPurchase,
+      cashback,
+    });
   }
 
   return responseTransformer.onError('Compra não foi encontrada');
@@ -106,7 +131,7 @@ const remove = (input) => {
   const editedValues = {
     deleted: true,
   };
-  return edit({ ...input, editedValues });
+  return edit({ ...input, editedValues }, true);
 };
 
 /* Function getAll

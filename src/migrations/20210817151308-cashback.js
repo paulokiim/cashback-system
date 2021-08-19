@@ -11,7 +11,6 @@ module.exports = {
       value: {
         allowNull: false,
         type: Sequelize.DECIMAL,
-        unique: true,
       },
       percentage: {
         allowNull: false,

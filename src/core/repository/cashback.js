@@ -10,6 +10,14 @@ const get = (params) => {
   return Cashback.findOne({ where: params });
 };
 
+const getAll = (params) => {
+  return Cashback.findAll({ where: params });
+};
+
+const update = (params, where) => {
+  return Cashback.update(params, { returning: true, where });
+};
+
 const destroy = (params) => {
   return Cashback.destroy({ where: params });
 };
@@ -17,5 +25,7 @@ const destroy = (params) => {
 module.exports = {
   create,
   get,
+  getAll,
+  update,
   destroy,
 };

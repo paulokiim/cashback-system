@@ -8,6 +8,7 @@ const purchaseRepository = require('../../src/core/repository/purchase');
 const cashbackRepository = require('../../src/core/repository/cashback');
 const userRepository = require('../../src/core/repository/user');
 const STATUS = require('../../src/enums/purchase-status');
+const CASHBACK = require('../../src/enums/cashback-percentages');
 
 describe('Testing purchase business-operation', () => {
   // CREATING NEW PURCHASE
@@ -176,6 +177,8 @@ describe('Testing purchase business-operation', () => {
   describe('Editing purchase', () => {
     let getPurchaseStub;
     let updatePurchaseStub;
+    let getCashbackStub;
+    let editCashbackStub;
 
     const editedValues = {
       code: faker.datatype.string(),
@@ -191,6 +194,33 @@ describe('Testing purchase business-operation', () => {
       documentNumber: faker.datatype.string(),
       deleted: false,
       editedValues,
+    };
+
+    const cashback = {
+      value: faker.datatype.number(),
+      percentage: faker.datatype.number(),
+    };
+
+    let cashbackPercentage;
+    let cashbackValue;
+    const newValue = faker.datatype.number();
+
+    if (newValue <= 1000) {
+      cashbackPercentage = CASHBACK.TEN_PERCENT;
+      cashbackValue = CASHBACK.TEN_PERCENT * newValue;
+    } else if (newValue > 1000 && newValue <= 1500) {
+      cashbackPercentage = CASHBACK.FIFTHEEN_PERCENT;
+      cashbackValue = CASHBACK.FIFTHEEN_PERCENT * newValue;
+    } else {
+      cashbackPercentage = CASHBACK.TWENTY_PERCENT;
+      cashbackValue = CASHBACK.TWENTY_PERCENT * newValue;
+    }
+
+    const fixedValue = Number(cashbackValue.toFixed(2));
+
+    const newCashback = {
+      value: fixedValue,
+      percentage: cashbackPercentage,
     };
 
     describe('When values are missing', () => {
@@ -267,6 +297,87 @@ describe('Testing purchase business-operation', () => {
       });
     });
 
+    describe('When editedValues has value property', () => {
+      const editedValuesWithValue = {
+        ...editedValues,
+        value: newValue,
+      };
+      const newMockValues = {
+        ...mockValues,
+        editedValues: editedValuesWithValue,
+      };
+
+      before(() => {
+        getPurchaseStub = sinon
+          .stub(purchaseRepository, 'get')
+          .returns(mockValues);
+        updatePurchaseStub = sinon
+          .stub(purchaseRepository, 'update')
+          .returns([1, [editedValuesWithValue]]);
+        updateCashbackStub = sinon
+          .stub(cashbackRepository, 'update')
+          .returns([1, [newCashback]]);
+      });
+
+      after(() => {
+        purchaseRepository.get.restore();
+        purchaseRepository.update.restore();
+        cashbackRepository.update.restore();
+      });
+
+      it('Should return 200 and update the cashback', async () => {
+        const { status, data } = await purchaseBO.edit(newMockValues);
+
+        expect(status).to.equal(200);
+        expect(data.purchase.code).to.equal(editedValuesWithValue.code);
+        expect(data.purchase.value).to.equal(editedValuesWithValue.value);
+        expect(data.purchase.purchaseDate).to.equal(
+          editedValuesWithValue.purchaseDate
+        );
+        expect(data.purchase.documentNumber).to.equal(
+          editedValuesWithValue.documentNumber
+        );
+        expect(data.cashback.value).to.equal(newCashback.value);
+        expect(data.cashback.percentage).to.equal(newCashback.percentage);
+      });
+    });
+
+    describe('When editedValues has value property but error occurs', () => {
+      const editedValuesWithValue = {
+        ...editedValues,
+        value: newValue,
+      };
+      const newMockValues = {
+        ...mockValues,
+        editedValues: editedValuesWithValue,
+      };
+
+      before(() => {
+        getPurchaseStub = sinon
+          .stub(purchaseRepository, 'get')
+          .returns(mockValues);
+        updatePurchaseStub = sinon
+          .stub(purchaseRepository, 'update')
+          .returns([1, [editedValuesWithValue]]);
+        updateCashbackStub = sinon
+          .stub(cashbackRepository, 'update')
+          .returns('Error trying to edit cashback');
+      });
+
+      after(() => {
+        purchaseRepository.get.restore();
+        purchaseRepository.update.restore();
+        cashbackRepository.update.restore();
+      });
+
+      it('Should return 400 and return cashback edit error', async () => {
+        const { status, data } = await purchaseBO.edit(newMockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Erro ao tentar editar cashback');
+      });
+    });
+
     describe('When purchase is edited successfully', () => {
       before(() => {
         getPurchaseStub = sinon
@@ -275,21 +386,28 @@ describe('Testing purchase business-operation', () => {
         updatePurchaseStub = sinon
           .stub(purchaseRepository, 'update')
           .returns([1, [editedValues]]);
+        getCashbackStub = sinon
+          .stub(cashbackRepository, 'get')
+          .returns(cashback);
       });
 
       after(() => {
         purchaseRepository.get.restore();
         purchaseRepository.update.restore();
+        cashbackRepository.get.restore();
       });
 
       it('Should return 200 and edit purchase', async () => {
         const { status, data } = await purchaseBO.edit(mockValues);
 
         expect(status).to.equal(200);
-        expect(data.code).to.equal(editedValues.code);
-        expect(data.value).to.equal(editedValues.value);
-        expect(data.purchaseDate).to.equal(editedValues.purchaseDate);
-        expect(data.documentNumber).to.equal(editedValues.documentNumber);
+        expect(data.purchase.code).to.equal(editedValues.code);
+        expect(data.purchase.purchaseDate).to.equal(editedValues.purchaseDate);
+        expect(data.purchase.documentNumber).to.equal(
+          editedValues.documentNumber
+        );
+        expect(data.cashback.value).to.equal(cashback.value);
+        expect(data.cashback.percentage).to.equal(cashback.percentage);
       });
     });
   });
@@ -445,13 +563,13 @@ describe('Testing purchase business-operation', () => {
           .stub(purchaseRepository, 'getAll')
           .returns(purchases);
         getManyCashbackStub = sinon
-          .stub(cashbackRepository, 'get')
+          .stub(cashbackRepository, 'getAll')
           .returns(cashbacks);
       });
 
       after(() => {
         purchaseRepository.getAll.restore();
-        cashbackRepository.get.restore();
+        cashbackRepository.getAll.restore();
       });
 
       it('Should return all datas from a documentNumber', async () => {
@@ -498,19 +616,19 @@ describe('Testing purchase business-operation', () => {
       });
     });
 
-    describe('When cashbacks and cant get cashbacks', () => {
+    describe('When trying to get cashback and cant get cashbacks', () => {
       before(() => {
         getAllPurchaseStub = sinon
           .stub(purchaseRepository, 'getAll')
           .returns([]);
         getManyCashbackStub = sinon
-          .stub(cashbackRepository, 'get')
+          .stub(cashbackRepository, 'getAll')
           .returns('Error trying to get many cashbacks');
       });
 
       after(() => {
         purchaseRepository.getAll.restore();
-        cashbackRepository.get.restore();
+        cashbackRepository.getAll.restore();
       });
 
       it('Should return status 400 and trying to get cashback error', async () => {
