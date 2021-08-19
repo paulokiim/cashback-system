@@ -21,10 +21,15 @@ const checkAuthentication = (req, res, next) => {
   }
 };
 
-const createJWTToken = (data) =>
-  jwt.sign({ data }, SECRET_TOKEN, {
-    expiresIn: '1800s',
-  });
+const createJWTToken = (data) => {
+  try {
+    return jwt.sign({ data }, SECRET_TOKEN, {
+      expiresIn: '1800s',
+    });
+  } catch (error) {
+    return 'Error';
+  }
+};
 
 module.exports = {
   checkAuthentication,

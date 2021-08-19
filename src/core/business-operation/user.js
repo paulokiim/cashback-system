@@ -1,7 +1,7 @@
 const md5 = require('md5');
 const userRepository = require('../repository/user');
 const responseTransformer = require('../../utils/responseTransformer');
-const { createJWTToken } = require('../../auth');
+const auth = require('../../auth');
 
 /* Function register
 1- Check if user exists on database
@@ -42,11 +42,12 @@ const login = async (input) => {
   };
 
   const user = await userRepository.get(params);
+
   if (!user) {
     return responseTransformer.onError('CPF ou Senha incorreta');
   }
 
-  const token = createJWTToken(user.documentNumber);
+  const token = auth.createJWTToken(user.documentNumber);
   if (token) {
     const response = {
       token,
@@ -55,7 +56,7 @@ const login = async (input) => {
     return responseTransformer.onSuccess(response);
   }
 
-  return responseTransformer.onError('CPF nao encontrado');
+  return responseTransformer.onError('Não foi possível criar um token');
 };
 
 module.exports = {

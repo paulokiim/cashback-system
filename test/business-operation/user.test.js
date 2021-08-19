@@ -4,7 +4,7 @@ const faker = require('faker');
 
 const userBO = require('../../src/core/business-operation/user');
 const userRepository = require('../../src/core/repository/user');
-const { createJWTToken } = require('../../src/auth');
+const auth = require('../../src/auth');
 
 describe('Testing user business-operation', () => {
   describe('Registering new user', () => {
@@ -65,23 +65,59 @@ describe('Testing user business-operation', () => {
       documentNumber: faker.datatype.string(),
     };
 
-    describe('Successfull login', () => {
+    describe('When successfull login', () => {
       let jwtToken;
 
       before(() => {
         getUserStub = sinon.stub(userRepository, 'get').returns(mockValues);
-        jwtToken = createJWTToken(mockValues.documentNumber);
+        jwtToken = auth.createJWTToken(mockValues.documentNumber);
       });
 
       after(() => {
         userRepository.get.restore();
       });
 
-      it('Should return jwt token and status 200', async () => {
+      it('Should return status 200 and jwt token', async () => {
         const { status, data } = await userBO.login(mockValues);
 
         expect(status).to.equal(200);
         expect(data.token).to.equal(jwtToken);
+      });
+    });
+
+    describe('When user doenst exist', () => {
+      before(() => {
+        getUserStub = sinon.stub(userRepository, 'get').returns();
+      });
+
+      after(() => {
+        userRepository.get.restore();
+      });
+
+      it('Should return status 400 and user not found error', async () => {
+        const { status, data } = await userBO.login(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('CPF ou Senha incorreta');
+      });
+    });
+
+    describe('When jwt token was not created', () => {
+      before(() => {
+        getUserStub = sinon.stub(userRepository, 'get').returns({});
+        sinon.stub(auth, 'createJWTToken').returns();
+      });
+
+      after(() => {
+        userRepository.get.restore();
+        auth.createJWTToken.restore();
+      });
+
+      it('Should return status 400 and jwt token error', async () => {
+        const { status, data } = await userBO.login(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Não foi possível criar um token');
       });
     });
   });

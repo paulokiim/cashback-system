@@ -5,7 +5,7 @@ const cashbackService = require('../../src/services/boticario-cashback');
 
 describe('Testing external api from Boticario', () => {
   describe('When documentNumber is invalid', () => {
-    it('Should return status 400 and erro message ', async () => {
+    it('Should return status 400 and error message ', async () => {
       const response = await cashbackService(faker.datatype.string());
 
       expect(response.status).to.equal(400);
