@@ -20,9 +20,11 @@ const create = async (input) => {
       cashbackValue = CASHBACK.TWENTY_PERCENT * value;
     }
 
+    const fixedValue = Number(cashbackValue.toFixed(2));
+
     const params = {
       uid: uuid(),
-      value: cashbackValue,
+      value: fixedValue,
       percentage: cashbackPercentage,
       purchaseUid,
     };
@@ -48,7 +50,21 @@ const get = async (input) => {
   }
 };
 
+const getMany = async (input) => {
+  try {
+    const { purchaseUids } = input;
+    const whereParams = {
+      purchaseUid: purchaseUids,
+    };
+    const response = await cashbackRepository.get(whereParams);
+    return response;
+  } catch (error) {
+    return 'Error trying to get many cashbacks';
+  }
+};
+
 module.exports = {
   create,
   get,
+  getMany,
 };

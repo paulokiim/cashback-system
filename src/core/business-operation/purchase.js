@@ -1,9 +1,9 @@
 const uuid = require('uuid').v4;
 
+const cashbackBO = require('./cashback');
 const purchaseRepository = require('../repository/purchase');
 const userRepository = require('../repository/user');
 const responseTransformer = require('../../utils/responseTransformer');
-const { createJWTToken } = require('../../auth');
 const STATUS = require('../../enums/purchase-status');
 
 /* Function create
@@ -33,8 +33,9 @@ const create = async (input) => {
   const purchaseExists = await purchaseRepository.get(checkParams);
 
   if (!purchaseExists) {
+    const purchaseUid = uuid();
     const params = {
-      uid: uuid(),
+      uid: purchaseUid,
       code,
       value,
       purchaseDate,
@@ -47,7 +48,13 @@ const create = async (input) => {
     };
 
     const response = await purchaseRepository.create(params);
-    return responseTransformer.onSuccess(response);
+
+    const cashback = await cashbackBO.create({ value, purchaseUid });
+
+    if (typeof cashback === 'string')
+      return responseTransformer.onError('Erro ao tentar criar cashback');
+
+    return responseTransformer.onSuccess({ purchase: response, cashback });
   }
   return responseTransformer.onError('Compra já está registrada');
 };
@@ -113,12 +120,24 @@ const getAll = async (input) => {
     deleted: false,
   };
 
-  const response = await purchaseRepository.getAll(whereParams);
+  const purchases = await purchaseRepository.getAll(whereParams);
 
-  const parsedResponse = response.map((data) => ({
+  const purchaseUids = purchases.map((purchase) => purchase.uid);
+
+  const cashbacks = await cashbackBO.getMany(purchaseUids);
+
+  if (typeof cashbacks === 'string')
+    return responseTransformer.onError('Erro ao tentar buscar os cashbacks');
+
+  if (cashbacks.length !== purchases.length)
+    return responseTransformer.onError('Quantidade de dados incorreto');
+
+  const parsedResponse = purchases.map((data, index) => ({
     code: data.code,
     value: data.value,
-    purchaseData: data.purchaseDate,
+    purchaseDate: data.purchaseDate,
+    cashbackValue: cashbacks[index].value,
+    cashbackPercentage: cashbacks[index].percentage,
   }));
 
   return responseTransformer.onSuccess(parsedResponse);

@@ -10,7 +10,7 @@ module.exports = {
       },
       value: {
         allowNull: false,
-        type: Sequelize.FLOAT,
+        type: Sequelize.DECIMAL,
         unique: true,
       },
       percentage: {

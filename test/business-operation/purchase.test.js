@@ -3,7 +3,9 @@ const sinon = require('sinon');
 const faker = require('faker');
 
 const purchaseBO = require('../../src/core/business-operation/purchase');
+const cashbackBO = require('../../src/core/business-operation/cashback');
 const purchaseRepository = require('../../src/core/repository/purchase');
+const cashbackRepository = require('../../src/core/repository/cashback');
 const userRepository = require('../../src/core/repository/user');
 const STATUS = require('../../src/enums/purchase-status');
 
@@ -12,6 +14,7 @@ describe('Testing purchase business-operation', () => {
   describe('Creating new purchase', () => {
     let createPurchaseStub;
     let getUserStub;
+    let createCashbackStub;
 
     const mockValues = {
       uid: faker.datatype.uuid(),
@@ -19,11 +22,12 @@ describe('Testing purchase business-operation', () => {
       value: faker.datatype.number(),
       purchaseDate: faker.datatype.datetime(),
       documentNumber: faker.datatype.string(),
+      purchaseUid: faker.datatype.uuid(),
       status: faker.datatype.string(),
     };
 
     describe('When purchase doenst exist and documentNumber is not priviledged', () => {
-      const input = {
+      const mockedNotPriviledged = {
         ...mockValues,
         status: STATUS.PENDING_REQUEST,
       };
@@ -31,23 +35,33 @@ describe('Testing purchase business-operation', () => {
       before(() => {
         createPurchaseStub = sinon
           .stub(purchaseRepository, 'create')
-          .returns(input);
-        getUserStub = sinon.stub(userRepository, 'get').returns(input);
+          .returns(mockedNotPriviledged);
+        getUserStub = sinon
+          .stub(userRepository, 'get')
+          .returns(mockedNotPriviledged);
+        createCashbackStub = sinon
+          .stub(cashbackRepository, 'create')
+          .returns({});
       });
 
       after(() => {
         purchaseRepository.create.restore();
         userRepository.get.restore();
+        cashbackRepository.create.restore();
       });
 
       it('Should return 200 and status Em validação', async () => {
-        const { status, data } = await purchaseBO.create(input);
+        const { status, data } = await purchaseBO.create(mockedNotPriviledged);
 
         expect(status).to.equal(200);
-        expect(data.code).to.equal(input.code);
-        expect(data.purchaseDate).to.equal(input.purchaseDate);
-        expect(data.documentNumber).to.equal(input.documentNumber);
-        expect(data.status).to.equal(STATUS.PENDING_REQUEST);
+        expect(data.purchase.code).to.equal(mockedNotPriviledged.code);
+        expect(data.purchase.purchaseDate).to.equal(
+          mockedNotPriviledged.purchaseDate
+        );
+        expect(data.purchase.documentNumber).to.equal(
+          mockedNotPriviledged.documentNumber
+        );
+        expect(data.purchase.status).to.equal(STATUS.PENDING_REQUEST);
       });
     });
 
@@ -63,21 +77,27 @@ describe('Testing purchase business-operation', () => {
           .stub(purchaseRepository, 'create')
           .returns(input);
         getUserStub = sinon.stub(userRepository, 'get').returns(input);
+        createCashbackStub = sinon
+          .stub(cashbackRepository, 'create')
+          .returns({});
       });
 
       after(() => {
         purchaseRepository.create.restore();
         userRepository.get.restore();
+        cashbackRepository.create.restore();
       });
 
       it('Should return 200 and status Aprovado', async () => {
         const { status, data } = await purchaseBO.create(input);
 
         expect(status).to.equal(200);
-        expect(data.code).to.equal(input.code);
-        expect(data.purchaseDate).to.equal(input.purchaseDate);
-        expect(data.documentNumber).to.equal(STATUS.HIGH_PRIVILEDGE_DOCUMENT);
-        expect(data.status).to.equal(STATUS.APPROVED);
+        expect(data.purchase.code).to.equal(input.code);
+        expect(data.purchase.purchaseDate).to.equal(input.purchaseDate);
+        expect(data.purchase.documentNumber).to.equal(
+          STATUS.HIGH_PRIVILEDGE_DOCUMENT
+        );
+        expect(data.purchase.status).to.equal(STATUS.APPROVED);
       });
     });
 
@@ -104,6 +124,31 @@ describe('Testing purchase business-operation', () => {
 
         expect(status).to.equal(400);
         expect(data.message).to.equal('Usuário não encontrado');
+      });
+    });
+
+    describe('When cashback failed to be created', () => {
+      before(() => {
+        getUserStub = sinon.stub(userRepository, 'get').returns({});
+        createPurchaseStub = sinon
+          .stub(purchaseRepository, 'create')
+          .returns(mockValues);
+        createCashbackStub = sinon
+          .stub(cashbackRepository, 'create')
+          .returns('Error trying to create cashback');
+      });
+
+      after(() => {
+        purchaseRepository.create.restore();
+        cashbackRepository.create.restore();
+        userRepository.get.restore();
+      });
+
+      it('Should return 400 and cashback creation error', async () => {
+        const { status, data } = await purchaseBO.create(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.be.equal('Erro ao tentar criar cashback');
       });
     });
 
@@ -363,29 +408,117 @@ describe('Testing purchase business-operation', () => {
     });
   });
 
+  // GET ALL PURCHASES
   describe('Get all purchases', () => {
     let getAllPurchaseStub;
+    let getManyCashbackStub;
 
     const mockValues = {
       documentNumber: faker.datatype.string(),
     };
 
-    const returnData = [];
+    const mockedPurchase = {
+      code: faker.datatype.string(),
+      purchaseDate: faker.datatype.datetime(),
+      value: faker.datatype.number(),
+    };
+    const mockedCashback = {
+      value: faker.datatype.number(),
+      percentage: faker.datatype.number(),
+    };
 
-    before(() => {
-      getAllPurchaseStub = sinon
-        .stub(purchaseRepository, 'getAll')
-        .returns(returnData);
+    describe('When all data returns successfully', () => {
+      const cashbacks = [];
+      const purchases = [];
+      const mockedResult = [];
+      before(() => {
+        for (let i = 0; i < 5; i++) {
+          cashbacks.push(mockedCashback);
+          purchases.push(mockedPurchase);
+          mockedResult.push({
+            ...purchases[i],
+            cashbackValue: cashbacks[i].value,
+            cashbackPercentage: cashbacks[i].percentage,
+          });
+        }
+        getAllPurchaseStub = sinon
+          .stub(purchaseRepository, 'getAll')
+          .returns(purchases);
+        getManyCashbackStub = sinon
+          .stub(cashbackRepository, 'get')
+          .returns(cashbacks);
+      });
+
+      after(() => {
+        purchaseRepository.getAll.restore();
+        cashbackRepository.get.restore();
+      });
+
+      it('Should return all datas from a documentNumber', async () => {
+        const { status, data } = await purchaseBO.getAll(mockValues);
+
+        expect(status).to.equal(200);
+        expect(data).to.eql(mockedResult);
+      });
     });
 
-    after(() => {
-      purchaseRepository.getAll.restore();
+    describe('When cashbacks and purchases have different length', () => {
+      const cashbacks = [];
+      const purchases = [];
+      const mockedResult = [];
+      before(() => {
+        for (let i = 0; i < 5; i++) {
+          cashbacks.push(mockedCashback);
+          purchases.push(mockedPurchase);
+          mockedResult.push({
+            ...purchases[i],
+            cashbackValue: cashbacks[i].value,
+            cashbackPercentage: cashbacks[i].percentage,
+          });
+        }
+        purchases.pop();
+        getAllPurchaseStub = sinon
+          .stub(purchaseRepository, 'getAll')
+          .returns(purchases);
+        getManyCashbackStub = sinon
+          .stub(cashbackRepository, 'get')
+          .returns(cashbacks);
+      });
+
+      after(() => {
+        purchaseRepository.getAll.restore();
+        cashbackRepository.get.restore();
+      });
+
+      it('Should return status 400 and different length error', async () => {
+        const { status, data } = await purchaseBO.getAll(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Quantidade de dados incorreto');
+      });
     });
 
-    it('Should return all datas from a documentNumber', async () => {
-      const { status, data } = await purchaseBO.getAll(mockValues);
+    describe('When cashbacks and cant get cashbacks', () => {
+      before(() => {
+        getAllPurchaseStub = sinon
+          .stub(purchaseRepository, 'getAll')
+          .returns([]);
+        getManyCashbackStub = sinon
+          .stub(cashbackRepository, 'get')
+          .returns('Error trying to get many cashbacks');
+      });
 
-      expect(status).to.equal(200);
+      after(() => {
+        purchaseRepository.getAll.restore();
+        cashbackRepository.get.restore();
+      });
+
+      it('Should return status 400 and trying to get cashback error', async () => {
+        const { status, data } = await purchaseBO.getAll(mockValues);
+
+        expect(status).to.equal(400);
+        expect(data.message).to.equal('Erro ao tentar buscar os cashbacks');
+      });
     });
   });
 });
