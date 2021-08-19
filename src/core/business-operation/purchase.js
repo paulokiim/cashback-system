@@ -136,7 +136,10 @@ const remove = (input) => {
 
 /* Function getAll
 1- Get all using documentNumber and deleted to filter
-2- Return datas
+2- Get all cashbacks
+3- Check if there was an error getting cashbacks
+4- Check length of purchases and cashback
+5- Return datas
 */
 const getAll = async (input) => {
   const { documentNumber } = input;
@@ -161,6 +164,7 @@ const getAll = async (input) => {
     code: data.code,
     value: data.value,
     purchaseDate: data.purchaseDate,
+    status: data.status,
     cashbackValue: cashbacks[index].value,
     cashbackPercentage: cashbacks[index].percentage,
   }));

@@ -539,6 +539,7 @@ describe('Testing purchase business-operation', () => {
       code: faker.datatype.string(),
       purchaseDate: faker.datatype.datetime(),
       value: faker.datatype.number(),
+      status: faker.datatype.string(),
     };
     const mockedCashback = {
       value: faker.datatype.number(),

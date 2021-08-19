@@ -2,6 +2,8 @@ const express = require('express');
 
 const userController = require('./controllers/user');
 const purchaseController = require('./controllers/purchase');
+const cashbackController = require('./controllers/cashback');
+
 const { checkAuthentication } = require('./auth');
 
 const routes = express.Router();
@@ -17,6 +19,6 @@ routes.put('/purchase/delete', checkAuthentication, purchaseController.remove);
 routes.get('/purchase/list', checkAuthentication, purchaseController.getAll);
 
 // Cashback routes
-routes.get('/cashback/amount');
+routes.get('/cashback/amount', checkAuthentication, cashbackController.get);
 
 module.exports = routes;
