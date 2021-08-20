@@ -24,6 +24,11 @@ const editPurchaseInput = {
   },
 };
 
+const removePurchaseInput = {
+  code: 'y',
+  purchaseDate: now,
+};
+
 const mockedPurchaseForEdit = {
   uid: uuid(),
   code: 'z',
@@ -35,7 +40,7 @@ const mockedPurchaseForEdit = {
 
 const mockedPurchaseForRemove = {
   uid: uuid(),
-  code: 'z',
+  code: 'y',
   value: 1000,
   purchaseDate: now,
   status: STATUS.PENDING_REQUEST,
@@ -45,6 +50,7 @@ const mockedPurchaseForRemove = {
 module.exports = {
   createPurchaseInput,
   editPurchaseInput,
+  removePurchaseInput,
   mockedPurchaseForEdit,
   mockedPurchaseForRemove,
 };
