@@ -2,8 +2,8 @@ const models = require('../model');
 
 const { Cashback } = models;
 
-const create = (params) => {
-  return Cashback.create(params);
+const create = (params, transaction) => {
+  return Cashback.create(params, { transaction });
 };
 
 const get = (params) => {
@@ -14,12 +14,8 @@ const getAll = (params) => {
   return Cashback.findAll({ where: params });
 };
 
-const update = (params, where) => {
-  return Cashback.update(params, { returning: true, where });
-};
-
-const destroy = (params) => {
-  return Cashback.destroy({ where: params });
+const update = (params, where, transaction) => {
+  return Cashback.update(params, { returning: true, where, transaction });
 };
 
 module.exports = {
@@ -27,5 +23,4 @@ module.exports = {
   get,
   getAll,
   update,
-  destroy,
 };

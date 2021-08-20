@@ -13,7 +13,7 @@ const STATUS = require('../../enums/purchase-status');
 4- If not, create a new
 5- If so, return error
 */
-const create = async (input) => {
+const create = async (input, transaction) => {
   const { code, value, purchaseDate, documentNumber } = input;
 
   if (!code || !value || !purchaseDate || !documentNumber)
@@ -48,14 +48,14 @@ const create = async (input) => {
       deleted: false,
     };
 
-    const response = await purchaseRepository.create(params);
+    const purchase = await purchaseRepository.create(params, transaction);
 
-    const cashback = await cashbackBO.create({ value, purchaseUid });
+    const cashback = await cashbackBO.create(
+      { value, purchaseUid },
+      transaction
+    );
 
-    if (typeof cashback === 'string')
-      return responseTransformer.onError('Erro ao tentar criar cashback');
-
-    return responseTransformer.onSuccess({ purchase: response, cashback });
+    return responseTransformer.onSuccess({ purchase, cashback });
   }
   return responseTransformer.onError('Compra já está registrada');
 };
@@ -68,7 +68,7 @@ const create = async (input) => {
 6- If not, edit purchase
 7- If so, return error
 */
-const edit = async (input, isRemove) => {
+const edit = async (input, transaction, isRemove) => {
   const { code, purchaseDate, documentNumber, editedValues } = input;
 
   if (!code || !purchaseDate || !documentNumber)
@@ -89,18 +89,17 @@ const edit = async (input, isRemove) => {
 
     const [_, [updatedPurchase]] = await purchaseRepository.update(
       editedValues,
-      checkParams
+      checkParams,
+      transaction
     );
 
     if (isRemove) return responseTransformer.onSuccess(updatedPurchase);
     if (editedValues.value) {
       const updatedCashback = await cashbackBO.edit(
         purchase.uid,
-        editedValues.value
+        editedValues.value,
+        transaction
       );
-
-      if (typeof updatedCashback === 'string')
-        return responseTransformer.onError('Erro ao tentar editar cashback');
 
       return responseTransformer.onSuccess({
         purchase: updatedPurchase,
@@ -127,11 +126,11 @@ const edit = async (input, isRemove) => {
 6- If not, remove purchase
 7- If so, return error
 */
-const remove = (input) => {
+const remove = (input, transaction) => {
   const editedValues = {
     deleted: true,
   };
-  return edit({ ...input, editedValues }, true);
+  return edit({ ...input, editedValues }, transaction, true);
 };
 
 /* Function getAll

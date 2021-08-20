@@ -26,44 +26,37 @@ const getCashbackParams = (value) => {
   };
 };
 
-const create = async (input) => {
-  try {
-    const { value, purchaseUid } = input;
+const create = async (input, transaction) => {
+  const { value, purchaseUid } = input;
 
-    const { cashbackValue, cashbackPercentage } = getCashbackParams(value);
+  const { cashbackValue, cashbackPercentage } = getCashbackParams(value);
 
-    const params = {
-      uid: uuid(),
-      value: cashbackValue,
-      percentage: cashbackPercentage,
-      purchaseUid,
-    };
+  const params = {
+    uid: uuid(),
+    value: cashbackValue,
+    percentage: cashbackPercentage,
+    purchaseUid,
+  };
 
-    const response = await cashbackRepository.create(params);
-    return response;
-  } catch (error) {
-    return 'Error trying to create cashback';
-  }
+  const response = await cashbackRepository.create(params, transaction);
+  return response;
 };
 
-const edit = async (purchaseUid, value) => {
-  try {
-    const whereParams = {
-      purchaseUid,
-    };
-    const { cashbackValue, cashbackPercentage } = getCashbackParams(value);
-    const updateParams = {
-      value: cashbackValue,
-      percentage: cashbackPercentage,
-    };
-    const [_, [updatedCashback]] = await cashbackRepository.update(
-      updateParams,
-      whereParams
-    );
-    return updatedCashback;
-  } catch (error) {
-    return 'Error trying to edit cashback';
-  }
+const edit = async (purchaseUid, value, transaction) => {
+  const whereParams = {
+    purchaseUid,
+  };
+  const { cashbackValue, cashbackPercentage } = getCashbackParams(value);
+  const updateParams = {
+    value: cashbackValue,
+    percentage: cashbackPercentage,
+  };
+  const [_, [updatedCashback]] = await cashbackRepository.update(
+    updateParams,
+    whereParams,
+    transaction
+  );
+  return updatedCashback;
 };
 
 const get = async (purchaseUid) => {
