@@ -45,28 +45,6 @@ describe('Testing cashback business-operation', () => {
   // EDITING CASHBACK
   describe('Editing a cashback', () => {
     let updateCashbackStub;
-    describe('When cashback is not updated successfully', () => {
-      const mockedInput = {
-        value: faker.datatype.number(1000),
-        purchaseUid: faker.datatype.uuid(),
-      };
-
-      before(() => {
-        updateCashbackStub = sinon
-          .stub(cashbackRepository, 'update')
-          .throws('Error trying to edit cashback');
-      });
-
-      after(() => {
-        cashbackRepository.update.restore();
-      });
-
-      it('Should throw error', async () => {
-        const response = await cashbackBO.edit(mockedInput);
-
-        expect(response).to.equal('Error trying to edit cashback');
-      });
-    });
 
     describe('When cashback is updated successfully', () => {
       const mockedInput = {

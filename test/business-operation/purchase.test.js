@@ -128,31 +128,6 @@ describe('Testing purchase business-operation', () => {
       });
     });
 
-    describe('When cashback failed to be created', () => {
-      before(() => {
-        getUserStub = sinon.stub(userRepository, 'get').returns({});
-        createPurchaseStub = sinon
-          .stub(purchaseRepository, 'create')
-          .returns(mockValues);
-        createCashbackStub = sinon
-          .stub(cashbackRepository, 'create')
-          .returns('Error trying to create cashback');
-      });
-
-      after(() => {
-        purchaseRepository.create.restore();
-        cashbackRepository.create.restore();
-        userRepository.get.restore();
-      });
-
-      it('Should return 400 and cashback creation error', async () => {
-        const { status, data } = await purchaseBO.create(mockValues);
-
-        expect(status).to.equal(400);
-        expect(data.message).to.be.equal('Erro ao tentar criar cashback');
-      });
-    });
-
     describe('When purchase already exists', () => {
       before(() => {
         getPurchaseStub = sinon.stub(purchaseRepository, 'get').returns({});
@@ -339,42 +314,6 @@ describe('Testing purchase business-operation', () => {
         );
         expect(data.cashback.value).to.equal(newCashback.value);
         expect(data.cashback.percentage).to.equal(newCashback.percentage);
-      });
-    });
-
-    describe('When editedValues has value property but error occurs', () => {
-      const editedValuesWithValue = {
-        ...editedValues,
-        value: newValue,
-      };
-      const newMockValues = {
-        ...mockValues,
-        editedValues: editedValuesWithValue,
-      };
-
-      before(() => {
-        getPurchaseStub = sinon
-          .stub(purchaseRepository, 'get')
-          .returns(mockValues);
-        updatePurchaseStub = sinon
-          .stub(purchaseRepository, 'update')
-          .returns([1, [editedValuesWithValue]]);
-        updateCashbackStub = sinon
-          .stub(cashbackRepository, 'update')
-          .returns('Error trying to edit cashback');
-      });
-
-      after(() => {
-        purchaseRepository.get.restore();
-        purchaseRepository.update.restore();
-        cashbackRepository.update.restore();
-      });
-
-      it('Should return 400 and return cashback edit error', async () => {
-        const { status, data } = await purchaseBO.edit(newMockValues);
-
-        expect(status).to.equal(400);
-        expect(data.message).to.equal('Erro ao tentar editar cashback');
       });
     });
 
