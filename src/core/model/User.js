@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
     'User',
     {
       documentNumber: {
-        type: DataTypes.UUID,
+        type: DataTypes.STRING,
         primaryKey: true,
         field: 'document_number',
       },

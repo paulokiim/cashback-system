@@ -4,6 +4,7 @@ const cashbackRepository = require('../repository/cashback');
 const CASHBACK = require('../../enums/cashback-percentages');
 
 const getCashbackParams = (value) => {
+  if (!value) return {};
   let cashbackPercentage;
   let cashbackValue;
 
@@ -46,11 +47,13 @@ const edit = async (purchaseUid, value, transaction) => {
   const whereParams = {
     purchaseUid,
   };
+
   const { cashbackValue, cashbackPercentage } = getCashbackParams(value);
   const updateParams = {
     value: cashbackValue,
     percentage: cashbackPercentage,
   };
+
   const [_, [updatedCashback]] = await cashbackRepository.update(
     updateParams,
     whereParams,

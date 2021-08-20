@@ -111,23 +111,6 @@ describe('Testing purchase business-operation', () => {
       });
     });
 
-    describe('When user doesnt exist', () => {
-      before(() => {
-        getUserStub = sinon.stub(userRepository, 'get').returns();
-      });
-
-      after(() => {
-        userRepository.get.restore();
-      });
-
-      it('Should return 400 and user not found error', async () => {
-        const { status, data } = await purchaseBO.create(mockValues);
-
-        expect(status).to.equal(400);
-        expect(data.message).to.equal('Usuário não encontrado');
-      });
-    });
-
     describe('When purchase already exists', () => {
       before(() => {
         getPurchaseStub = sinon.stub(purchaseRepository, 'get').returns({});

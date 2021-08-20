@@ -27,10 +27,6 @@ const create = async (input, transaction) => {
     deleted: false,
   };
 
-  const user = await userRepository.get({ documentNumber });
-
-  if (!user) return responseTransformer.onError('Usuário não encontrado');
-
   const purchase = await purchaseRepository.get(checkParams);
 
   if (!purchase) {
@@ -71,7 +67,7 @@ const create = async (input, transaction) => {
 const edit = async (input, transaction, isRemove) => {
   const { code, purchaseDate, documentNumber, editedValues } = input;
 
-  if (!code || !purchaseDate || !documentNumber)
+  if (!code || !purchaseDate || !documentNumber || !editedValues)
     return responseTransformer.onError('Informe todos os dados');
 
   const checkParams = {
