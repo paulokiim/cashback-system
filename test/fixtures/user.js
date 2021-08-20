@@ -40,6 +40,13 @@ const mockedUserForRemovePurchase = {
   password: md5('paulokim'),
 };
 
+const mockedUserForGetAllPurchase = {
+  fullName: 'Cordeiro',
+  documentNumber: '222222222',
+  email: 'teste5@gmail.com',
+  password: md5('paulokim'),
+};
+
 module.exports = {
   registerUserInput,
   mockedUserForLogin,
@@ -47,4 +54,5 @@ module.exports = {
   mockedUserForCreatePurchase,
   mockedUserForEditPurchase,
   mockedUserForRemovePurchase,
+  mockedUserForGetAllPurchase,
 };

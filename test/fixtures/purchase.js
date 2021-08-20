@@ -47,10 +47,20 @@ const mockedPurchaseForRemove = {
   deleted: false,
 };
 
+const mockedPurchaseForGetAll = {
+  uid: uuid(),
+  code: 'z',
+  value: 1000,
+  purchaseDate: now,
+  status: STATUS.PENDING_REQUEST,
+  deleted: false,
+};
+
 module.exports = {
   createPurchaseInput,
   editPurchaseInput,
   removePurchaseInput,
   mockedPurchaseForEdit,
   mockedPurchaseForRemove,
+  mockedPurchaseForGetAll,
 };

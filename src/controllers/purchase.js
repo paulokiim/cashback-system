@@ -51,7 +51,7 @@ const getAll = async (req, res) => {
 
     return res.status(response.status).send(response);
   } catch (error) {
-    return res.status(500).send('Erro Interno');
+    return res.status(500).send('Erro ao tentar buscar todas as compras');
   }
 };
 

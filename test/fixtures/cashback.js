@@ -11,7 +11,14 @@ const mockedCashback = {
   percentage: 0.1,
 };
 
+const mockedCashbackForGetAll = {
+  uid: uuid(),
+  value: 100,
+  percentage: 0.1,
+};
+
 module.exports = {
   createCashbackInput,
   mockedCashback,
+  mockedCashbackForGetAll,
 };
