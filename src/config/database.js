@@ -10,6 +10,11 @@ module.exports = {
   database: process.env.DB_DATABASE,
   port: process.env.DB_PORT,
   logging: false,
+  dialectOptions: {
+    options: {
+      requestTimeout: 5000,
+    },
+  },
   define: {
     timestamps: true,
     underscored: true,
