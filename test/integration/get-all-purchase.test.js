@@ -130,7 +130,6 @@ describe('GET /purchase/list', () => {
         .send();
 
       expect(body.status).to.equal(200);
-      // expect(body.data).to.equal('Quantidade de dados incorreto');
     });
   });
 });

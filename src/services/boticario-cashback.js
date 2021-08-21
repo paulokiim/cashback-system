@@ -2,7 +2,7 @@ const axios = require('axios');
 
 const { EXTERNAL_API, EXTERNAL_API_TOKEN } = require('../config');
 
-const cashbackService = async (documentNumber) => {
+const getCashback = async (documentNumber) => {
   const response = await axios.get(`${EXTERNAL_API}/cashback`, {
     params: { cpf: documentNumber },
     headers: { token: EXTERNAL_API_TOKEN },
@@ -16,4 +16,4 @@ const cashbackService = async (documentNumber) => {
   return { status: data.statusCode, data: data.body };
 };
 
-module.exports = cashbackService;
+module.exports = { getCashback };

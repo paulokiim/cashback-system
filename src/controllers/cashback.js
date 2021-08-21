@@ -2,11 +2,11 @@ const cashbackService = require('../services/boticario-cashback');
 
 const get = async (req, res) => {
   try {
-    const body = req.body;
-    const response = await cashbackService(body);
+    const { documentNumber } = req.body;
+    const response = await cashbackService.getCashback(documentNumber);
     return res.status(200).send(response);
   } catch (error) {
-    return res.status(400).send(error);
+    return res.status(500).send('Erro na api externa');
   }
 };
 
