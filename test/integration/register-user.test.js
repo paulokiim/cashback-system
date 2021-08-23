@@ -60,11 +60,7 @@ describe('#POST /register', () => {
       const { body } = await request.post('/register').send(registerUserInput);
 
       expect(body.status).to.equal(200);
-      expect(body.data.fullName).to.equal(registerUserInput.fullName);
-      expect(body.data.documentNumber).to.equal(
-        registerUserInput.documentNumber
-      );
-      expect(body.data.email).to.equal(registerUserInput.email);
+      expect(body.data.created).to.equal(true);
     });
   });
 });

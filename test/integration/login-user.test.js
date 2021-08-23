@@ -64,7 +64,7 @@ describe('#PUT /login', () => {
       const { body } = await request.put('/login').send(loginUserInput);
 
       expect(body.status).to.equal(200);
-      expect(body.data).to.have.any.keys('token');
+      expect(body.data).to.have.any.keys('token', 'auth');
     });
   });
 });

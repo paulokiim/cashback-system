@@ -29,9 +29,7 @@ describe('#Testing user business-operation', () => {
         const { status, data } = await userBO.register(mockValues);
 
         expect(status).to.equal(200);
-        expect(data.fullName).to.equal(mockValues.fullName);
-        expect(data.documentNumber).to.equal(mockValues.documentNumber);
-        expect(data.email).to.equal(mockValues.email);
+        expect(data.created).to.equal(true);
       });
     });
 
@@ -70,6 +68,7 @@ describe('#Testing user business-operation', () => {
 
         expect(status).to.equal(200);
         expect(data.token).to.equal(jwtToken);
+        expect(data.auth).to.equal(true);
       });
     });
 
