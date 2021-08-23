@@ -23,8 +23,8 @@ const register = async (input) => {
       email,
     };
 
-    const response = await userRepository.create(params);
-    return responseTransformer.onSuccess(response);
+    await userRepository.create(params);
+    return responseTransformer.onSuccess({ created: true });
   }
   return responseTransformer.onError('Usuario existente');
 };
@@ -51,7 +51,7 @@ const login = async (input) => {
   if (token) {
     const response = {
       token,
-      user,
+      auth: true,
     };
     return responseTransformer.onSuccess(response);
   }
