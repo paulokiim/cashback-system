@@ -70,7 +70,7 @@ npm run undo
 
 ## Routes
 
-For route **/regiter**:
+Route POST **/regiter**:
 
 ```
 Input is json:
@@ -90,7 +90,7 @@ Response is json:
 }
 ```
 
-For route **/login**:
+Route PUT **/login**:
 
 ```
 Input is json:
@@ -109,7 +109,7 @@ Response is json:
 }
 ```
 
-For route **/purchase/create**:
+Route POST **/purchase/create**:
 
 ```
 Input is json:
@@ -146,7 +146,7 @@ Response is json:
 }
 ```
 
-For route **/purchase/edit**:
+Route PUT **/purchase/edit**:
 
 ```
 Input is json:
@@ -183,7 +183,7 @@ Response is json:
 }
 ```
 
-For route **/purchase/remove**:
+Route PUT **/purchase/remove**:
 
 ```
 Input is json:
@@ -209,7 +209,7 @@ Response is json:
 }
 ```
 
-For route **/purchase/list**:
+Route GET **/purchase/list**:
 
 ```
 Input none:
@@ -230,7 +230,7 @@ Response is json:
 }
 ```
 
-For route **/cashback/amount**:
+Route GET **/cashback/amount**:
 
 ```
 Input none:
