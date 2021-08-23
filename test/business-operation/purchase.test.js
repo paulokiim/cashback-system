@@ -3,7 +3,6 @@ const sinon = require('sinon');
 const faker = require('faker');
 
 const purchaseBO = require('../../src/core/business-operation/purchase');
-const cashbackBO = require('../../src/core/business-operation/cashback');
 const purchaseRepository = require('../../src/core/repository/purchase');
 const cashbackRepository = require('../../src/core/repository/cashback');
 const userRepository = require('../../src/core/repository/user');
@@ -11,22 +10,19 @@ const STATUS = require('../../src/enums/purchase-status');
 const CASHBACK = require('../../src/enums/cashback-percentages');
 
 describe('Testing purchase business-operation', () => {
+  const mockValues = {
+    uid: faker.datatype.uuid(),
+    code: faker.datatype.string(),
+    value: faker.datatype.number(),
+    purchaseDate: faker.datatype.datetime(),
+    documentNumber: faker.datatype.string(),
+    purchaseUid: faker.datatype.uuid(),
+    status: faker.datatype.string(),
+    deleted: false,
+  };
+
   // CREATING NEW PURCHASE
   describe('Creating new purchase', () => {
-    let createPurchaseStub;
-    let getUserStub;
-    let createCashbackStub;
-
-    const mockValues = {
-      uid: faker.datatype.uuid(),
-      code: faker.datatype.string(),
-      value: faker.datatype.number(),
-      purchaseDate: faker.datatype.datetime(),
-      documentNumber: faker.datatype.string(),
-      purchaseUid: faker.datatype.uuid(),
-      status: faker.datatype.string(),
-    };
-
     describe('When purchase doenst exist and documentNumber is not priviledged', () => {
       const mockedNotPriviledged = {
         ...mockValues,
@@ -34,15 +30,9 @@ describe('Testing purchase business-operation', () => {
       };
 
       before(() => {
-        createPurchaseStub = sinon
-          .stub(purchaseRepository, 'create')
-          .returns(mockedNotPriviledged);
-        getUserStub = sinon
-          .stub(userRepository, 'get')
-          .returns(mockedNotPriviledged);
-        createCashbackStub = sinon
-          .stub(cashbackRepository, 'create')
-          .returns({});
+        sinon.stub(purchaseRepository, 'create').returns(mockedNotPriviledged);
+        sinon.stub(userRepository, 'get').returns(mockedNotPriviledged);
+        sinon.stub(cashbackRepository, 'create').returns({});
       });
 
       after(() => {
@@ -74,13 +64,9 @@ describe('Testing purchase business-operation', () => {
       };
 
       before(() => {
-        createPurchaseStub = sinon
-          .stub(purchaseRepository, 'create')
-          .returns(input);
-        getUserStub = sinon.stub(userRepository, 'get').returns(input);
-        createCashbackStub = sinon
-          .stub(cashbackRepository, 'create')
-          .returns({});
+        sinon.stub(purchaseRepository, 'create').returns(input);
+        sinon.stub(userRepository, 'get').returns(input);
+        sinon.stub(cashbackRepository, 'create').returns({});
       });
 
       after(() => {
@@ -113,8 +99,8 @@ describe('Testing purchase business-operation', () => {
 
     describe('When purchase already exists', () => {
       before(() => {
-        getPurchaseStub = sinon.stub(purchaseRepository, 'get').returns({});
-        getUserStub = sinon.stub(userRepository, 'get').returns({});
+        sinon.stub(purchaseRepository, 'get').returns({});
+        sinon.stub(userRepository, 'get').returns({});
       });
 
       after(() => {
@@ -133,24 +119,14 @@ describe('Testing purchase business-operation', () => {
 
   // EDITING PURCHASE
   describe('Editing purchase', () => {
-    let getPurchaseStub;
-    let updatePurchaseStub;
-    let getCashbackStub;
-    let editCashbackStub;
-
     const editedValues = {
       code: faker.datatype.string(),
       purchaseDate: faker.datatype.datetime(),
       documentNumber: faker.datatype.string(),
     };
 
-    const mockValues = {
-      uid: faker.datatype.uuid(),
-      code: faker.datatype.string(),
-      value: faker.datatype.number(),
-      purchaseDate: faker.datatype.datetime(),
-      documentNumber: faker.datatype.string(),
-      deleted: false,
+    const newMockValues = {
+      ...mockValues,
       editedValues,
     };
 
@@ -192,7 +168,7 @@ describe('Testing purchase business-operation', () => {
 
     describe('When purchase doesnt exist', () => {
       before(() => {
-        getPurchaseStub = sinon.stub(purchaseRepository, 'get').returns();
+        sinon.stub(purchaseRepository, 'get').returns();
       });
 
       after(() => {
@@ -200,7 +176,7 @@ describe('Testing purchase business-operation', () => {
       });
 
       it('Should return 400 and purchase doesnt exist error', async () => {
-        const { status, data } = await purchaseBO.edit(mockValues);
+        const { status, data } = await purchaseBO.edit(newMockValues);
 
         expect(status).to.equal(400);
         expect(data.message).to.equal('Compra não foi encontrada');
@@ -209,14 +185,12 @@ describe('Testing purchase business-operation', () => {
 
     describe('When purchase has status Approved', () => {
       const mockedWithApproved = {
-        ...mockValues,
+        ...newMockValues,
         status: STATUS.APPROVED,
       };
 
       before(() => {
-        getPurchaseStub = sinon
-          .stub(purchaseRepository, 'get')
-          .returns(mockedWithApproved);
+        sinon.stub(purchaseRepository, 'get').returns(mockedWithApproved);
       });
 
       after(() => {
@@ -224,7 +198,7 @@ describe('Testing purchase business-operation', () => {
       });
 
       it('Should return 400 and already approved error', async () => {
-        const { status, data } = await purchaseBO.edit(mockValues);
+        const { status, data } = await purchaseBO.edit(newMockValues);
 
         expect(status).to.equal(400);
         expect(data.message).to.equal('Status já aprovado');
@@ -233,14 +207,12 @@ describe('Testing purchase business-operation', () => {
 
     describe('When purchase was deleted', () => {
       const mockedWithDeleted = {
-        ...mockValues,
+        ...newMockValues,
         deleted: true,
       };
 
       before(() => {
-        getPurchaseStub = sinon
-          .stub(purchaseRepository, 'get')
-          .returns(mockedWithDeleted);
+        sinon.stub(purchaseRepository, 'get').returns(mockedWithDeleted);
       });
 
       after(() => {
@@ -248,7 +220,7 @@ describe('Testing purchase business-operation', () => {
       });
 
       it('Should return 400 and purchase doesnt exist error', async () => {
-        const { status, data } = await purchaseBO.edit(mockValues);
+        const { status, data } = await purchaseBO.edit(newMockValues);
 
         expect(status).to.equal(400);
         expect(data.message).to.equal('Compra não foi encontrada');
@@ -260,21 +232,18 @@ describe('Testing purchase business-operation', () => {
         ...editedValues,
         value: newValue,
       };
+
       const newMockValues = {
         ...mockValues,
         editedValues: editedValuesWithValue,
       };
 
       before(() => {
-        getPurchaseStub = sinon
-          .stub(purchaseRepository, 'get')
-          .returns(mockValues);
-        updatePurchaseStub = sinon
+        sinon.stub(purchaseRepository, 'get').returns(mockValues);
+        sinon
           .stub(purchaseRepository, 'update')
           .returns([1, [editedValuesWithValue]]);
-        updateCashbackStub = sinon
-          .stub(cashbackRepository, 'update')
-          .returns([1, [newCashback]]);
+        sinon.stub(cashbackRepository, 'update').returns([1, [newCashback]]);
       });
 
       after(() => {
@@ -302,15 +271,9 @@ describe('Testing purchase business-operation', () => {
 
     describe('When purchase is edited successfully', () => {
       before(() => {
-        getPurchaseStub = sinon
-          .stub(purchaseRepository, 'get')
-          .returns(mockValues);
-        updatePurchaseStub = sinon
-          .stub(purchaseRepository, 'update')
-          .returns([1, [editedValues]]);
-        getCashbackStub = sinon
-          .stub(cashbackRepository, 'get')
-          .returns(cashback);
+        sinon.stub(purchaseRepository, 'get').returns(mockValues);
+        sinon.stub(purchaseRepository, 'update').returns([1, [editedValues]]);
+        sinon.stub(cashbackRepository, 'get').returns(cashback);
       });
 
       after(() => {
@@ -320,8 +283,8 @@ describe('Testing purchase business-operation', () => {
       });
 
       it('Should return 200 and edit purchase', async () => {
-        const { status, data } = await purchaseBO.edit(mockValues);
-
+        const { status, data } = await purchaseBO.edit(newMockValues);
+        console.log(data);
         expect(status).to.equal(200);
         expect(data.purchase.code).to.equal(editedValues.code);
         expect(data.purchase.purchaseDate).to.equal(editedValues.purchaseDate);
@@ -336,16 +299,6 @@ describe('Testing purchase business-operation', () => {
 
   // REMOVING PURCHASE
   describe('Removing purchase', () => {
-    let getPurchaseStub;
-    let updatePurchaseStub;
-
-    const mockValues = {
-      code: faker.datatype.string(),
-      purchaseDate: faker.datatype.datetime(),
-      documentNumber: faker.datatype.string(),
-      deleted: false,
-    };
-
     describe('When values are missing', () => {
       it('Should return 400 with invalid input error', async () => {
         const { status, data } = await purchaseBO.remove({});
@@ -357,7 +310,7 @@ describe('Testing purchase business-operation', () => {
 
     describe('When purchase doesnt exist', () => {
       before(() => {
-        getPurchaseStub = sinon.stub(purchaseRepository, 'get').returns();
+        sinon.stub(purchaseRepository, 'get').returns();
       });
 
       after(() => {
@@ -379,9 +332,7 @@ describe('Testing purchase business-operation', () => {
       };
 
       before(() => {
-        getPurchaseStub = sinon
-          .stub(purchaseRepository, 'get')
-          .returns(mockedWithDeleted);
+        sinon.stub(purchaseRepository, 'get').returns(mockedWithDeleted);
       });
 
       after(() => {
@@ -403,9 +354,7 @@ describe('Testing purchase business-operation', () => {
       };
 
       before(() => {
-        getPurchaseStub = sinon
-          .stub(purchaseRepository, 'get')
-          .returns(mockedWithApproved);
+        sinon.stub(purchaseRepository, 'get').returns(mockedWithApproved);
       });
 
       after(() => {
@@ -426,10 +375,8 @@ describe('Testing purchase business-operation', () => {
         deleted: true,
       };
       before(() => {
-        getPurchaseStub = sinon
-          .stub(purchaseRepository, 'get')
-          .returns(mockValues);
-        updatePurchaseStub = sinon
+        sinon.stub(purchaseRepository, 'get').returns(mockValues);
+        sinon
           .stub(purchaseRepository, 'update')
           .returns([1, [mockDeletedData]]);
       });
@@ -450,19 +397,13 @@ describe('Testing purchase business-operation', () => {
 
   // GET ALL PURCHASES
   describe('Get all purchases', () => {
-    let getAllPurchaseStub;
-    let getManyCashbackStub;
-
-    const mockValues = {
-      documentNumber: faker.datatype.string(),
-    };
-
     const mockedPurchase = {
       code: faker.datatype.string(),
       purchaseDate: faker.datatype.datetime(),
       value: faker.datatype.number(),
       status: faker.datatype.string(),
     };
+
     const mockedCashback = {
       value: faker.datatype.number(),
       percentage: faker.datatype.number(),
@@ -482,12 +423,8 @@ describe('Testing purchase business-operation', () => {
             cashbackPercentage: cashbacks[i].percentage,
           });
         }
-        getAllPurchaseStub = sinon
-          .stub(purchaseRepository, 'getAll')
-          .returns(purchases);
-        getManyCashbackStub = sinon
-          .stub(cashbackRepository, 'getAll')
-          .returns(cashbacks);
+        sinon.stub(purchaseRepository, 'getAll').returns(purchases);
+        sinon.stub(cashbackRepository, 'getAll').returns(cashbacks);
       });
 
       after(() => {
@@ -518,12 +455,8 @@ describe('Testing purchase business-operation', () => {
           });
         }
         purchases.pop();
-        getAllPurchaseStub = sinon
-          .stub(purchaseRepository, 'getAll')
-          .returns(purchases);
-        getManyCashbackStub = sinon
-          .stub(cashbackRepository, 'get')
-          .returns(cashbacks);
+        sinon.stub(purchaseRepository, 'getAll').returns(purchases);
+        sinon.stub(cashbackRepository, 'get').returns(cashbacks);
       });
 
       after(() => {
@@ -541,10 +474,8 @@ describe('Testing purchase business-operation', () => {
 
     describe('When trying to get cashback and cant get cashbacks', () => {
       before(() => {
-        getAllPurchaseStub = sinon
-          .stub(purchaseRepository, 'getAll')
-          .returns([]);
-        getManyCashbackStub = sinon
+        sinon.stub(purchaseRepository, 'getAll').returns([]);
+        sinon
           .stub(cashbackRepository, 'getAll')
           .returns('Error trying to get many cashbacks');
       });

@@ -7,26 +7,21 @@ const cashbackRepository = require('../../src/core/repository/cashback');
 const CASHBACK = require('../../src/enums/cashback-percentages');
 
 describe('Testing cashback business-operation', () => {
+  const mockedInput = {
+    value: faker.datatype.number(1000),
+    purchaseUid: faker.datatype.uuid(),
+  };
+
   // CREATING CASHBACK
   describe('Registering new cashback', () => {
-    let createCashbackStub;
-    let getCashbackStub;
-
     describe('When cashback is only 10%', () => {
-      const mockedInput = {
-        value: faker.datatype.number(1000),
-        purchaseUid: faker.datatype.uuid(),
-      };
-
       const mockValues = {
         percentage: CASHBACK.TEN_PERCENT,
         value: CASHBACK.TEN_PERCENT * mockedInput.value,
       };
 
       before(() => {
-        getCashbackStub = sinon
-          .stub(cashbackRepository, 'create')
-          .returns(mockValues);
+        sinon.stub(cashbackRepository, 'create').returns(mockValues);
       });
 
       after(() => {
@@ -44,23 +39,14 @@ describe('Testing cashback business-operation', () => {
 
   // EDITING CASHBACK
   describe('Editing a cashback', () => {
-    let updateCashbackStub;
-
     describe('When cashback is updated successfully', () => {
-      const mockedInput = {
-        value: faker.datatype.number(1000),
-        purchaseUid: faker.datatype.uuid(),
-      };
-
       const mockCashback = {
         value: faker.datatype.number(),
         percentage: faker.datatype.number(),
       };
 
       before(() => {
-        updateCashbackStub = sinon
-          .stub(cashbackRepository, 'update')
-          .returns([1, [mockCashback]]);
+        sinon.stub(cashbackRepository, 'update').returns([1, [mockCashback]]);
       });
 
       after(() => {
@@ -78,16 +64,9 @@ describe('Testing cashback business-operation', () => {
 
   //GETTING ONE CASHBACK
   describe('Getting a cashback', () => {
-    let getCashbackStub;
-
     describe('When cashback doesnt return successfully', () => {
-      const mockedInput = {
-        value: faker.datatype.number(1000),
-        purchaseUid: faker.datatype.uuid(),
-      };
-
       before(() => {
-        getCashbackStub = sinon
+        sinon
           .stub(cashbackRepository, 'get')
           .throws('Error trying to edit cashback');
       });
@@ -116,9 +95,7 @@ describe('Testing cashback business-operation', () => {
       };
 
       before(() => {
-        getCashbackStub = sinon
-          .stub(cashbackRepository, 'get')
-          .returns(mockCashback);
+        sinon.stub(cashbackRepository, 'get').returns(mockCashback);
       });
 
       after(() => {
@@ -136,16 +113,9 @@ describe('Testing cashback business-operation', () => {
 
   //GETTING MANY CASHBACK
   describe('Getting many cashbacks', () => {
-    let getManyCashbackStub;
-
     describe('When cashbacks doesnt return successfully', () => {
-      const mockedInput = {
-        value: faker.datatype.number(1000),
-        purchaseUid: faker.datatype.uuid(),
-      };
-
       before(() => {
-        getManyCashbackStub = sinon
+        sinon
           .stub(cashbackRepository, 'getAll')
           .throws('Error trying to get many cashbacks');
       });
@@ -176,9 +146,7 @@ describe('Testing cashback business-operation', () => {
       ];
 
       before(() => {
-        getManyCashbackStub = sinon
-          .stub(cashbackRepository, 'getAll')
-          .returns(mockCashback);
+        sinon.stub(cashbackRepository, 'getAll').returns(mockCashback);
       });
 
       after(() => {

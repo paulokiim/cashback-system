@@ -7,23 +7,18 @@ const userRepository = require('../../src/core/repository/user');
 const auth = require('../../src/auth');
 
 describe('Testing user business-operation', () => {
+  const mockValues = {
+    uid: faker.datatype.uuid(),
+    fullName: faker.name.findName(),
+    password: faker.datatype.string(),
+    email: faker.internet.email(),
+    documentNumber: faker.datatype.string(),
+  };
+
   describe('Registering new user', () => {
-    let createUserStub;
-    let getUserStub;
-
-    const mockValues = {
-      uid: faker.datatype.uuid(),
-      fullName: faker.name.findName(),
-      password: faker.datatype.string(),
-      email: faker.internet.email(),
-      documentNumber: faker.datatype.string(),
-    };
-
     describe('When user doenst exist', () => {
       before(() => {
-        createUserStub = sinon
-          .stub(userRepository, 'create')
-          .returns(mockValues);
+        sinon.stub(userRepository, 'create').returns(mockValues);
       });
 
       after(() => {
@@ -42,7 +37,7 @@ describe('Testing user business-operation', () => {
 
     describe('When user already exists', () => {
       before(() => {
-        getUserStub = sinon.stub(userRepository, 'get').returns(mockValues);
+        sinon.stub(userRepository, 'get').returns(mockValues);
       });
 
       after(() => {
@@ -58,18 +53,11 @@ describe('Testing user business-operation', () => {
   });
 
   describe('Login user', () => {
-    let getUserStub;
-
-    const mockValues = {
-      password: faker.datatype.string(),
-      documentNumber: faker.datatype.string(),
-    };
-
     describe('When successfull login', () => {
       let jwtToken;
 
       before(() => {
-        getUserStub = sinon.stub(userRepository, 'get').returns(mockValues);
+        sinon.stub(userRepository, 'get').returns(mockValues);
         jwtToken = auth.createJWTToken(mockValues.documentNumber);
       });
 
@@ -87,7 +75,7 @@ describe('Testing user business-operation', () => {
 
     describe('When user doenst exist', () => {
       before(() => {
-        getUserStub = sinon.stub(userRepository, 'get').returns();
+        sinon.stub(userRepository, 'get').returns();
       });
 
       after(() => {
@@ -104,7 +92,7 @@ describe('Testing user business-operation', () => {
 
     describe('When jwt token was not created', () => {
       before(() => {
-        getUserStub = sinon.stub(userRepository, 'get').returns({});
+        sinon.stub(userRepository, 'get').returns({});
         sinon.stub(auth, 'createJWTToken').returns();
       });
 
