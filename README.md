@@ -9,7 +9,7 @@ Cashback System is written in Javascript using Node.js to create a backend serve
 ## Installation
 
 Cashback System requires [Node.js](https://nodejs.org/) v14+ to run.
-Install the dependencies and devDependencies and start the server.
+Install the dependencies and devDependencies.
 
 ```sh
 git clone https://github.com/paulokiim/cashback-system.git
@@ -61,6 +61,7 @@ Input is json:
     email,
     password
 }
+
 Response is json:
 {
     status,
@@ -78,6 +79,7 @@ Input is json:
     documentNumber,
     password
 }
+
 Response is json:
 {
     status,
@@ -97,6 +99,7 @@ Input is json:
     value,
     purchaseDate
 }
+
 Response is json:
 {
     status,
@@ -133,6 +136,7 @@ Input is json:
     purchaseDate,
     editedValues
 }
+
 Response is json:
 {
     status,
@@ -168,6 +172,7 @@ Input is json:
     code,
     purchaseDate,
 }
+
 Response is json:
 {
     status,
@@ -189,6 +194,7 @@ For route **/purchase/list**:
 
 ```
 Input none:
+
 Response is json:
 {
     status,
@@ -209,6 +215,7 @@ For route **/cashback/amount**:
 
 ```
 Input none:
+
 Response is json:
 {
     status,
@@ -216,6 +223,37 @@ Response is json:
 }
 ```
 
+## Default Database Tables
+
+If you simply run after instalation:
+
+```
+npm run migrate
+```
+
+You'll get the following tables:
+
+#### Table Name: user
+
+| Attributes  | document_number | fullName | email    | password | created_at | updated_at |
+| ----------- | --------------- | -------- | -------- | -------- | ---------- | ---------- |
+| Data Type   | String          | String   | String   | String   | Timestampz | Timestampz |
+| Constraints | Primary Key     | Not Null | Not Null | Not Null | Not Null   | Not Null   |
+
+#### Table Name: purchase
+
+| Attributes  | uid         | code       | value    | status   | document_number               | purchase_date | deleted    | created_at | updated_at |
+| ----------- | ----------- | ---------- | -------- | -------- | ----------------------------- | ------------- | ---------- | ---------- | ---------- | ---------- |
+| Data Types  | Uuid        | String     | Float    | String   | String                        | String        | Timestampz | Boolean    | Timestampz | Timestampz |
+| Constraints | Primary Key | Unique Key | Not Null | Not Null | Foreign Key (references user) | Not Null      | Not Null   | Not Null   | Not Null   |
+
+#### Table Name: cashback
+
+| Attributes  | uid         | value    | percentage | purchase_uid                      | created_at | updated_at |
+| ----------- | ----------- | -------- | ---------- | --------------------------------- | ---------- | ---------- |
+| Data Types  | Uuid        | Double   | Double     | Uuid                              | Timestampz | Timestampz |
+| Constraints | Primary Key | Not Null | Not Null   | Foreign Key (references purchase) | Not Null   | Not Null   |
+
 ## License
 
-**Just use it the way you want!**
+#### **Just use it the way you want!**
