@@ -10,11 +10,11 @@ module.exports = {
       },
       value: {
         allowNull: false,
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DOUBLE,
       },
       percentage: {
         allowNull: false,
-        type: Sequelize.FLOAT,
+        type: Sequelize.DOUBLE,
       },
       purchase_uid: {
         allowNull: false,
