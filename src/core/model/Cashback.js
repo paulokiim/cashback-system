@@ -8,11 +8,11 @@ module.exports = (sequelize, DataTypes) => {
         field: 'uid',
       },
       value: {
-        type: DataTypes.DECIMAL,
+        type: DataTypes.DOUBLE,
         field: 'value',
       },
       percentage: {
-        type: DataTypes.FLOAT,
+        type: DataTypes.DOUBLE,
         field: 'percentage',
       },
       purchaseUid: {

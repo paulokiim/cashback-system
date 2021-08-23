@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       code: {
         type: DataTypes.STRING,
         field: 'code',
+        unique: true,
       },
       value: {
         type: DataTypes.FLOAT,

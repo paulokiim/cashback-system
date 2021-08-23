@@ -2,9 +2,10 @@ const uuid = require('uuid').v4;
 
 const cashbackBO = require('./cashback');
 const purchaseRepository = require('../repository/purchase');
-const userRepository = require('../repository/user');
 const responseTransformer = require('../../utils/responseTransformer');
 const STATUS = require('../../enums/purchase-status');
+
+const getFixedValue = (value) => (value ? Number(value.toFixed(2)) : value);
 
 /* Function create
 1- Check if all datas exists
@@ -31,10 +32,11 @@ const create = async (input, transaction) => {
 
   if (!purchase) {
     const purchaseUid = uuid();
+    const fixedValue = getFixedValue(value);
     const params = {
       uid: purchaseUid,
       code,
-      value,
+      value: fixedValue,
       purchaseDate,
       documentNumber,
       status:
@@ -64,7 +66,7 @@ const create = async (input, transaction) => {
 6- If not, edit purchase
 7- If so, return error
 */
-const edit = async (input, transaction, isRemove) => {
+const edit = async (input, transaction) => {
   const { code, purchaseDate, documentNumber, editedValues } = input;
 
   if (!code || !purchaseDate || !documentNumber || !editedValues)
@@ -83,13 +85,15 @@ const edit = async (input, transaction, isRemove) => {
     if (purchase.status === STATUS.APPROVED)
       return responseTransformer.onError('Status já aprovado');
 
+    const fixedValue = getFixedValue(editedValues.value);
+    editedValues.value = fixedValue;
+
     const [_, [updatedPurchase]] = await purchaseRepository.update(
       editedValues,
       checkParams,
       transaction
     );
 
-    if (isRemove) return responseTransformer.onSuccess(updatedPurchase);
     if (editedValues.value) {
       const updatedCashback = await cashbackBO.edit(
         purchase.uid,
@@ -122,11 +126,35 @@ const edit = async (input, transaction, isRemove) => {
 6- If not, remove purchase
 7- If so, return error
 */
-const remove = (input, transaction) => {
-  const editedValues = {
-    deleted: true,
+const remove = async (input, transaction) => {
+  const { code, purchaseDate, documentNumber } = input;
+
+  if (!code || !purchaseDate || !documentNumber)
+    return responseTransformer.onError('Informe todos os dados');
+
+  const checkParams = {
+    code,
+    purchaseDate,
+    documentNumber,
+    deleted: false,
   };
-  return edit({ ...input, editedValues }, transaction, true);
+
+  const purchase = await purchaseRepository.get(checkParams);
+
+  if (purchase && purchase.deleted === false) {
+    if (purchase.status === STATUS.APPROVED)
+      return responseTransformer.onError('Status já aprovado');
+
+    const [_, [updatedPurchase]] = await purchaseRepository.update(
+      { deleted: true },
+      checkParams,
+      transaction
+    );
+
+    return responseTransformer.onSuccess(updatedPurchase);
+  }
+
+  return responseTransformer.onError('Compra não foi encontrada');
 };
 
 /* Function getAll
