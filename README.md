@@ -254,10 +254,10 @@ You'll get the following tables:
 
 #### Table Name: user
 
-| Attributes  | document_number | fullName | email    | password | created_at | updated_at |
-| ----------- | --------------- | -------- | -------- | -------- | ---------- | ---------- |
-| Data Type   | String          | String   | String   | String   | Timestampz | Timestampz |
-| Constraints | Primary Key     | Not Null | Not Null | Not Null | Not Null   | Not Null   |
+| Attributes  | document_number | full_name | email    | password | created_at | updated_at |
+| ----------- | --------------- | --------- | -------- | -------- | ---------- | ---------- |
+| Data Type   | String          | String    | String   | String   | Timestampz | Timestampz |
+| Constraints | Primary Key     | Not Null  | Not Null | Not Null | Not Null   | Not Null   |
 
 #### Table Name: purchase
 
