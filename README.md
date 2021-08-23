@@ -5,6 +5,7 @@ Cashback System is written in Javascript using Node.js to create a backend serve
 - Express
 - Postgresql
 - Sequelize
+- Json Web Token (JWT)
 
 ## Installation
 
@@ -19,7 +20,25 @@ npm i
 
 ## After intallation
 
-To run the application just type on terminal:
+First of all, you need to create a .env file that have the following variables:
+
+```
+PORT=
+
+DB_DIALECT=
+DB_USERNAME=
+DB_HOST=
+DB_PASSWORD=
+DB_DATABASE=
+DB_PORT=
+
+JWT_TOKEN_SECRET=
+
+EXTERNAL_API=
+EXTERNAL_API_TOKEN=
+```
+
+Having created .env file, to run the application just type on terminal:
 
 ```sh
 npm start
