@@ -21,7 +21,7 @@ const { Cashback, Purchase, User } = models;
 
 const request = supertest(app);
 
-describe('PUT /purchase/delete', () => {
+describe('#PUT /purchase/delete', () => {
   let jwtToken;
   before(async () => {
     await User.create(mockedUserForRemovePurchase);

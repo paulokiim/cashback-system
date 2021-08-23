@@ -15,7 +15,7 @@ const { User } = models;
 
 const request = supertest(app);
 
-describe('PUT /login', () => {
+describe('#PUT /login', () => {
   before(async () => {
     await User.create(mockedUserForLogin);
   });

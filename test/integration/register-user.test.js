@@ -15,7 +15,7 @@ const { User } = models;
 
 const request = supertest(app);
 
-describe('POST /register', () => {
+describe('#POST /register', () => {
   after(async () => {
     const destroyParams = { ...registerUserInput };
     delete destroyParams.password;

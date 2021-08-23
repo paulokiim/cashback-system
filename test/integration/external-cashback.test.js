@@ -16,7 +16,7 @@ const { User } = models;
 
 const request = supertest(app);
 
-describe('GET /cashback/amount', () => {
+describe('#GET /cashback/amount', () => {
   let jwtToken;
   let errorJwtToken;
 

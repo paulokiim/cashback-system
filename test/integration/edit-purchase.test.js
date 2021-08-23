@@ -23,7 +23,7 @@ const { Cashback, Purchase, User } = models;
 
 const request = supertest(app);
 
-describe('PUT /purchase/edit', () => {
+describe('#PUT /purchase/edit', () => {
   let jwtToken;
   before(async () => {
     await User.create(mockedUserForEditPurchase);

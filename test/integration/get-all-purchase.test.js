@@ -19,7 +19,7 @@ const { User, Purchase, Cashback } = models;
 
 const request = supertest(app);
 
-describe('GET /purchase/list', () => {
+describe('#GET /purchase/list', () => {
   let jwtToken;
 
   before(async () => {

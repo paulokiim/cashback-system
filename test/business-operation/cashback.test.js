@@ -6,7 +6,7 @@ const cashbackBO = require('../../src/core/business-operation/cashback');
 const cashbackRepository = require('../../src/core/repository/cashback');
 const CASHBACK = require('../../src/enums/cashback-percentages');
 
-describe('Testing cashback business-operation', () => {
+describe('#Testing cashback business-operation', () => {
   const mockedInput = {
     value: faker.datatype.number(1000),
     purchaseUid: faker.datatype.uuid(),

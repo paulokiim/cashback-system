@@ -6,7 +6,7 @@ const userBO = require('../../src/core/business-operation/user');
 const userRepository = require('../../src/core/repository/user');
 const auth = require('../../src/auth');
 
-describe('Testing user business-operation', () => {
+describe('#Testing user business-operation', () => {
   const mockValues = {
     uid: faker.datatype.uuid(),
     fullName: faker.name.findName(),

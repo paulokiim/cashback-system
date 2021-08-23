@@ -18,7 +18,7 @@ const { Cashback, Purchase, User } = models;
 
 const request = supertest(app);
 
-describe('POST /purchase/create', () => {
+describe('#POST /purchase/create', () => {
   let jwtToken;
   before(async () => {
     await User.create(mockedUserForCreatePurchase);

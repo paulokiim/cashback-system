@@ -9,7 +9,7 @@ const userRepository = require('../../src/core/repository/user');
 const STATUS = require('../../src/enums/purchase-status');
 const CASHBACK = require('../../src/enums/cashback-percentages');
 
-describe('Testing purchase business-operation', () => {
+describe('#Testing purchase business-operation', () => {
   const mockValues = {
     uid: faker.datatype.uuid(),
     code: faker.datatype.string(),
@@ -284,7 +284,7 @@ describe('Testing purchase business-operation', () => {
 
       it('Should return 200 and edit purchase', async () => {
         const { status, data } = await purchaseBO.edit(newMockValues);
-        console.log(data);
+
         expect(status).to.equal(200);
         expect(data.purchase.code).to.equal(editedValues.code);
         expect(data.purchase.purchaseDate).to.equal(editedValues.purchaseDate);
