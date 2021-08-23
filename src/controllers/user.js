@@ -9,7 +9,9 @@ const register = async (req, res) => {
     return res.status(response.status).send(response);
   } catch (error) {
     if (error.name === 'SequelizeUniqueConstraintError') {
-      // return res.status(404).send('')
+      return res
+        .status(400)
+        .send({ status: 400, data: { message: 'Email já cadastrado' } });
     }
     return res.status(500).send('Erro Interno');
   }

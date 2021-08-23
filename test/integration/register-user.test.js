@@ -23,7 +23,26 @@ describe('#POST /register', () => {
     await User.destroy({ where: destroyParams });
   });
 
-  describe('When same email or documentNumber was used', () => {
+  describe('When same email was used', () => {
+    before(() => {
+      sinon
+        .stub(userRepository, 'create')
+        .throws({ name: 'SequelizeUniqueConstraintError' });
+    });
+
+    after(() => {
+      userRepository.create.restore();
+    });
+
+    it('Should return status 400 and email error', async () => {
+      const { body } = await request.post('/register').send(registerUserInput);
+
+      expect(body.status).to.equal(400);
+      expect(body.data.message).to.equal('Email já cadastrado');
+    });
+  });
+
+  describe('When same documentNumber was used', () => {
     before(() => {
       sinon.stub(userRepository, 'get').returns({});
     });
@@ -58,6 +77,8 @@ describe('#POST /register', () => {
   describe('When new user is created', () => {
     it('Should return status 200 and a new user', async () => {
       const { body } = await request.post('/register').send(registerUserInput);
+
+      console.log(body);
 
       expect(body.status).to.equal(200);
       expect(body.data.created).to.equal(true);
