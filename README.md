@@ -261,10 +261,10 @@ You'll get the following tables:
 
 #### Table Name: purchase
 
-| Attributes  | uid         | code       | value    | status   | document_number               | purchase_date | deleted    | created_at | updated_at |
-| ----------- | ----------- | ---------- | -------- | -------- | ----------------------------- | ------------- | ---------- | ---------- | ---------- | ---------- |
-| Data Types  | Uuid        | String     | Float    | String   | String                        | String        | Timestampz | Boolean    | Timestampz | Timestampz |
-| Constraints | Primary Key | Unique Key | Not Null | Not Null | Foreign Key (references user) | Not Null      | Not Null   | Not Null   | Not Null   |
+| Attributes  | uid         | code       | value    | status   | document_number               | purchase_date | deleted  | created_at | updated_at |
+| ----------- | ----------- | ---------- | -------- | -------- | ----------------------------- | ------------- | -------- | ---------- | ---------- |
+| Data Types  | Uuid        | String     | Float    | String   | String                        | Timestampz    | Boolean  | Timestampz | Timestampz |
+| Constraints | Primary Key | Unique Key | Not Null | Not Null | Foreign Key (references user) | Not Null      | Not Null | Not Null   | Not Null   |
 
 #### Table Name: cashback
 
